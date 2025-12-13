@@ -1,0 +1,654 @@
+STR_ADVERT:
+.data.s "PLEASE DON'T SELL OR BUY        THIS THING."
+
+.define IDLE 0x00
+.define WALK 0x01
+.define JUMP 0x02
+.define FALL 0x03
+
+.define LEFT 0x40
+.define RIGHT 0x00
+
+.define MAX_SCREEN_SPEED 0x0004
+
+uint16 position_x,position_y,var2,tmp16
+uint16 screenx,screeny,posx,posy,vrticalGB2
+uint16 cam_x,cam_y,cam_x_offest
+uint16 sprite_posx,sprite_posy,sprite_posx_old,sprite_posy_old
+uint16 sprite_speed, vertical_speed
+uint16 screenx_speed,screeny_speed
+uint8 frog_state
+
+func platformer:
+{
+	FORCED_BLANK
+	
+	//upload map VRAM
+	//SNDK_SendVRAM 0x0000,MAP1_SPR,0x8000
+	call SNDK_LZ_VRAM: 3
+	//SNDK_SendVRAM 0x6000,FROG_SPR,0x1000
+	SNDK_SendVRAM 0x6000,FROG_SPR,0x1800
+	
+	//update pal
+	SNDK_memcopy SNDK_PALBG1,MAP1_PAL,0xE0
+	SNDK_memcopy SNDK_PALSPR0,FROG_PAL,0x40
+	
+	//SNDK_SendCGRAM 0x00,SNDK_PALBG0,0x200
+	
+	//Load BG
+	call SNDK_LoadBG:0,0,0
+	
+	
+	//--------SPR0----
+	MODE16
+	idx = SPR_INDEX_0
+	
+	[SNDK_SPRITE.list,idx] = $LIST_FROG:
+	[SNDK_SPRITE.x,idx] = (100<<2)
+	[SNDK_SPRITE.y,idx] = (100<<2)
+	[SNDK_SPRITE.mode,idx] = $SNDK_SpriteEngineDrawMode0:
+	[SNDK_SPRITE.index,idx]  = 0
+	[SNDK_SPRITE.ianim,idx]  = 0
+	MODE8
+	
+	[SNDK_SPRITE.flag,idx] = 0x02
+	[SNDK_SPRITE.t,idx] = 0;
+	[SNDK_SPRITE.a,idx] = (OAM_PAL0 | OAM_PRIO2);
+	
+	
+	spm uint8 fade,var1,select_stop,var3,hit,tmp8
+	//spm uint8 hit_up, hit_down, hit_left, hit_right 
+	// spm uint8 frog_direction
+	fade = 0
+	select_stop = 0
+	var1=0x00
+	var3=1	
+	frog_state = IDLE
+	// frog_direction = RIGHT
+	
+	MODE16
+	position_x = 100
+	position_y = 100
+	sprite_posx = 100
+	sprite_posy = 100
+	cam_x = 100
+	cam_y = 100
+	sprite_speed = 0x0001
+	vertical_speed = 0x0000
+	
+	cam_x_offest = 0x0070
+	screenx_speed = 0x0001
+	screeny_speed = 0x0001
+	vrticalGB2=0x0000
+	MODE8
+	
+	TM = (SNDK_OBJ | SNDK_BG1 | SNDK_BG2 | SNDK_BG3)
+	
+	call SNDK_PrintLine: $STR_ADVERT:,#STR_ADVERT:,4,2,SNDK_FONTPAL0;
+	
+	do
+	{
+		
+		MODE16
+		sprite_posx_old = sprite_posx
+		sprite_posy_old = sprite_posy
+		MODE8
+
+		call player_physics:
+		
+		call physics:		
+		
+		call camera:
+		
+		var3 += 1
+		
+		if SNDK_Joypad.pad1h & SNDK_PAD_SELECT
+		{
+		//	fade = 1
+			if select_stop == 0
+			{
+				select_stop = 1
+				//var1+=0x01
+			}
+		}
+		
+		
+		call SNDK_LimitBG1:
+		call SNDK_LimitBG2:
+		
+		// make the second plan scroll down & loop
+		MODE16
+		vrticalGB2 += 0x0001
+		vrticalGB2 &= 0x001F
+		MODE8
+		
+		call SNDK_ScrollMultiBG: (SNDK_BG1SV | SNDK_BG1SH | SNDK_BG2SV | SNDK_BG2SH)
+		
+		
+		call player_state_visuals: frog_state
+		
+		
+		// sprites part
+		call SNDK_Sprite:
+		call SNDK_SpriteEngine:0,1,1
+		
+		
+		// Debug zone!
+		//hit = 0
+		//
+		//call coll_frog_bg:sprite_posx,sprite_posy
+		//hit += acc
+				
+		//call SNDK_PrintHexa8: hit,4,4,SNDK_FONTPAL0
+
+		//call SNDK_PrintHexa16: screenx,4,5,SNDK_FONTPAL0
+		//call SNDK_PrintHexa16: screeny,4,6,SNDK_FONTPAL0
+		
+		//call SNDK_PrintHexa16: var2,10,4,SNDK_FONTPAL0
+		//call SNDK_PrintHexa16: cam_x,10,5,SNDK_FONTPAL0
+		//call SNDK_PrintHexa16: cam_y,10,6,SNDK_FONTPAL0
+		
+		//call SNDK_PrintHexa16: posx,16,5,SNDK_FONTPAL0
+		//call SNDK_PrintHexa16: posy,16,6,SNDK_FONTPAL0
+		
+		//call SNDK_PrintHexa16: sprite_posx,4,8,SNDK_FONTPAL0
+		//call SNDK_PrintHexa16: sprite_posy,4,9,SNDK_FONTPAL0
+		//call SNDK_PrintHexa16: vertical_speed,4,10,SNDK_FONTPAL0
+		//call SNDK_PrintHexa8: frog_state,6,11,SNDK_FONTPAL0
+		
+		//call SNDK_PrintHexa8: var3,16,4,SNDK_FONTPAL0
+		//call SNDK_PrintHexa16: tmp16,22,4,SNDK_FONTPAL0
+		
+		//call SNDK_PrintHexa8: hit_up,12,8,SNDK_FONTPAL0
+		//call SNDK_PrintHexa8: hit_down,12,10,SNDK_FONTPAL0
+		//call SNDK_PrintHexa8: hit_left,10,9,SNDK_FONTPAL0
+		//call SNDK_PrintHexa8: hit_right,14,9,SNDK_FONTPAL0
+		
+		call SNDK_PrintHexa8: SNDK.cpu,4,22,SNDK_FONTPAL0
+		
+		call: SNDK_Pause: 0xFF,0xFF
+		
+		call SNDK_Fade: 6,fade
+		if acc == 1
+		{
+			if fade == 1
+			{
+				FORCED_BLANK
+				TM = (SNDK_BG3)
+				return
+			}
+		}
+		call SNDK_WaitVBlank:
+		
+
+	}
+	while 1 == 1
+}
+
+func coll_frog_bg: uint16 frog_x,uint16 frog_y
+{
+	MODE16
+	//acc = 0
+	frog_x = frog_x >> 4
+	frog_y = frog_y >> 4
+	frog_y = frog_y << 6 // multiply by BG lenght (x64)
+	idx = frog_x + frog_y
+	MODE8
+	acc = [SNDK_BufferBGC,idx]
+}
+
+func coll_bg_up: uint16 frog_x,uint16 frog_y
+{
+	uint8 result,result_tmp
+	uint16 max_x
+	
+	MODE16
+	frog_x += 8 // colision of frog starts at 8position_x width
+	frog_x = frog_x >> 4
+	frog_y += 8 // colision of frog starts at 8position_x hight
+	frog_y = frog_y >> 4
+	frog_y = frog_y << 6 // multiply by BG lenght (x64)
+	max_x = frog_x + 2 // colision of frog ends at 24position_x width
+	MODE8
+	result = 0
+	
+	MODE16
+	do
+	{
+		idx = frog_x + frog_y
+		MODE8
+		result_tmp = [SNDK_BufferBGC,idx]
+		if result_tmp > result
+		{
+			result = result_tmp
+		}
+		MODE16
+		frog_x += 1
+	}
+	while frog_x < max_x
+	MODE8
+	acc = result
+}
+
+func coll_bg_down: uint16 frog_x,uint16 frog_y
+{
+	uint8 result,result_tmp
+	uint16 max_x
+	
+	MODE16
+	frog_x += 8 // colision of frog starts at 8position_x width
+	frog_x = frog_x >> 4
+	frog_y += 32 // colision of frog is at 32position_x hight
+	frog_y = frog_y >> 4
+	frog_y = frog_y << 6 // multiply by BG lenght (x64)
+	max_x = frog_x + 2 // colision of frog ends at 24position_x width
+	MODE8
+	result = 0
+	
+	MODE16
+	do
+	{
+		idx = frog_x + frog_y
+		MODE8
+		result_tmp = [SNDK_BufferBGC,idx]
+		if result_tmp > result
+		{
+			result = result_tmp
+		}
+		MODE16
+		frog_x += 1
+	}
+	while frog_x < max_x
+	MODE8
+	acc = result
+}
+
+func coll_bg_left: uint16 frog_x,uint16 frog_y
+{
+	uint8 result,result_tmp
+	uint16 temp_y,max_y
+	
+	MODE16
+	frog_x += 8 // colision of frog is at 8position_x width
+	frog_x = frog_x >> 4
+	frog_y += 8 // colision of frog starts at 8position_x hight
+	max_y = frog_y + 32 // colision of frog ends at 32position_x width
+	MODE8
+	result = 0
+	
+	MODE16
+	do
+	{
+		temp_y = frog_y >> 4
+		temp_y = temp_y << 6 // multiply by BG lenght (x64)
+		idx = frog_x + temp_y
+		MODE8
+		result_tmp = [SNDK_BufferBGC,idx]
+		if result_tmp > result
+		{
+			result = result_tmp
+		}
+		MODE16
+		frog_y += 8
+	}
+	while frog_y < max_y
+	MODE8
+	acc = result
+}
+
+func coll_bg_right: uint16 frog_x,uint16 frog_y
+{
+	uint8 result,result_tmp
+	uint16 temp_y,max_y
+	
+	MODE16
+	frog_x += 24 // colision of frog is at 8position_x width
+	frog_x = frog_x >> 4
+	frog_y += 8 // colision of frog stars at 8position_x hight
+	//frog_y = frog_y >> 4
+	//frog_y = frog_y << 6 // multiply by BG lenght (x64)
+	//max_y = frog_y + 192 // colision of frog ends at 32position_x width == 3x64
+	max_y = frog_y + 32 // colision of frog ends at 32position_x width
+	MODE8
+	result = 0
+	
+	MODE16
+	do
+	{
+		temp_y = frog_y >> 4
+		temp_y = temp_y << 6 // multiply by BG lenght (x64)
+		idx = frog_x + temp_y
+		MODE8
+		result_tmp = [SNDK_BufferBGC,idx]
+		if result_tmp > result
+		{
+			result = result_tmp
+		}
+		MODE16
+		frog_y += 8
+	}
+	while frog_y < max_y
+	MODE8
+	acc = result
+}
+
+func camera:
+{
+		// camera stuff:
+		MODE16
+		screenx = SNDK_BG1_Scroll.x
+		screeny = SNDK_BG1_Scroll.y
+		
+		//cam_x = sprite_posx - 0x0070
+		cam_x = sprite_posx - cam_x_offest
+		position_x = sprite_posx - screenx
+		//if sprite_posx < 0x0070 //128 -16
+		if sprite_posx < cam_x_offest
+		{
+			cam_x = 0x0000
+			//position_x = sprite_posx
+		}
+		//if sprite_posx > 0x0370 //1024 - 128 -16
+		tmp16 = cam_x_offest + 1024
+		if sprite_posx > tmp16
+		{
+			// 0x0300 = 1024 -256
+			cam_x = 0x0300
+			//position_x = sprite_posx - 0x0300
+		}
+		cam_y = sprite_posy - 0x0060
+		position_y = sprite_posy - screeny
+		if sprite_posy < 0x0060 //112 -16
+		{
+			cam_y = 0x0000
+			//position_y = sprite_posy
+		}
+		if sprite_posy > 0x0180 //512 - 112 -16
+		{
+			// 0x0300 = 1024 -256
+			cam_y = 0x0120
+			//position_y = sprite_posy - 0x0120
+		}
+		
+		
+		if cam_x > screenx
+		{
+			tmp16 = cam_x - screenx
+			if tmp16 < screenx_speed
+			{
+				screenx_speed = tmp16
+			}
+			SNDK_BG2_Scroll.x += screenx_speed;
+			SNDK_BG1_Scroll.x += screenx_speed;
+			SNDK_BG_Scroll.addx = SNDK_BG_SCROLL_RIGHT
+			screenx_speed += 0x0001
+		}
+		
+		if cam_x < screenx
+		{
+			tmp16 = screenx - cam_x
+			if tmp16 < screenx_speed
+			{
+				screenx_speed = tmp16
+			}
+			SNDK_BG2_Scroll.x -= screenx_speed;
+			SNDK_BG1_Scroll.x -= screenx_speed;
+			SNDK_BG_Scroll.addx = SNDK_BG_SCROLL_LEFT
+			screenx_speed += 0x0001
+		}
+		
+		
+		if cam_y < screeny
+		{
+			tmp16 = screeny - cam_y
+			if tmp16 < screeny_speed
+			{
+				screeny_speed = tmp16
+			}
+			//SNDK_BG2_Scroll.y -= screeny_speed;
+			SNDK_BG1_Scroll.y -= screeny_speed;
+			SNDK_BG_Scroll.addy = SNDK_BG_SCROLL_UP
+			screeny_speed += 0x0001
+		}
+		
+		if cam_y > screeny
+		{
+			tmp16 = cam_y - screeny
+			if tmp16 < screeny_speed
+			{
+				screeny_speed = tmp16
+			}
+			//SNDK_BG2_Scroll.y += screeny_speed;
+			SNDK_BG1_Scroll.y += screeny_speed;
+			SNDK_BG_Scroll.addy = SNDK_BG_SCROLL_DOWN
+			screeny_speed += 0x0001
+		}
+		
+		SNDK_BG2_Scroll.y = SNDK_BG1_Scroll.y - vrticalGB2
+		
+		if screenx_speed > MAX_SCREEN_SPEED
+		{
+			screenx_speed = MAX_SCREEN_SPEED
+		}
+		if screeny_speed > MAX_SCREEN_SPEED
+		{
+			screeny_speed = MAX_SCREEN_SPEED
+		}
+		
+		if cam_x == screenx
+		{
+			screenx_speed = 0x0001
+		}
+		if cam_y == screeny
+		{
+			screeny_speed = 0x0001
+		}
+		
+		MODE8
+}
+
+func physics:
+{
+	uint8 hit_up, hit_down, hit_left, hit_right
+	
+	hit_up = 0
+	hit_down = 0
+	hit_left = 0
+	hit_right = 0
+	
+	MODE16
+	tmp16 = sprite_posy +1
+	MODE8
+	call coll_bg_down:sprite_posx,tmp16
+	hit_down += acc
+	if frog_state != JUMP
+	{
+		if hit_down == 0
+		{
+			frog_state = FALL
+		}
+	}
+	hit_down = 0
+	
+	call coll_bg_up:sprite_posx_old,sprite_posy
+	hit_up += acc
+	call coll_bg_down:sprite_posx_old,sprite_posy
+	hit_down += acc
+	call coll_bg_left:sprite_posx,sprite_posy_old
+	hit_left += acc
+	call coll_bg_right:sprite_posx,sprite_posy_old
+	hit_right += acc
+	
+	if hit_left == 1
+	{
+		MODE16
+		sprite_posx = sprite_posx_old
+		MODE8
+	}
+	if hit_right == 1
+	{
+		MODE16
+		sprite_posx = sprite_posx_old
+		MODE8
+	}
+	if hit_up == 1
+	{
+		MODE16
+		sprite_posy = sprite_posy_old
+		MODE8
+		if frog_state == JUMP
+		{
+			MODE16
+			vertical_speed = 0x0000
+			MODE8
+			frog_state = FALL
+		}
+	}
+	if hit_down != 0
+	{
+		if frog_state == FALL
+		{
+			sprite_posy = sprite_posy_old
+			MODE16
+			vertical_speed = 0x0000
+			MODE8
+			frog_state = IDLE
+		}
+	}
+}
+
+func player_physics:
+{
+	MODE16
+	idx = SPR_INDEX_0
+	
+	sprite_speed = 0x0001
+	MODE8
+	if SNDK_Joypad.pad1h & SNDK_PAD_B
+	{
+		MODE16
+		sprite_speed = 0x0002
+		MODE8
+	}
+	if SNDK_Joypad.pad1h & SNDK_PAD_RIGHT
+	{
+		MODE16
+		if sprite_posx < 0x03E0 // 1024 -32
+		{
+			//sprite_posx += sprite_speed
+			sprite_posx = sprite_posx+sprite_speed
+		}
+		cam_x_offest = 0x0040
+		MODE8
+		//frog_direction = RIGHT
+		[SNDK_SPRITE.a,idx] = (OAM_PAL0 | OAM_PRIO2);
+	}
+	if SNDK_Joypad.pad1h & SNDK_PAD_LEFT
+	{
+		MODE16
+		if sprite_posx > 0
+		{
+			//sprite_posx -= sprite_speed
+			sprite_posx = sprite_posx-sprite_speed
+		}
+		cam_x_offest = 0x00A0
+		MODE8
+		//frog_direction = LEFT
+		[SNDK_SPRITE.a,idx] = (OAM_PAL0 | OAM_PRIO2 | OAM_XFLIP);
+	}
+
+	if SNDK_Joypad.pad1l & SNDK_PAD_A
+	{
+		if frog_state < JUMP
+		{
+			MODE16
+			vertical_speed = 0xFFF0
+			MODE8
+			frog_state = JUMP
+		}
+	}
+	
+	if frog_state == JUMP
+	{
+		MODE16
+		vertical_speed +=1
+		if vertical_speed == 0x0000
+		{
+			MODE8
+			frog_state = FALL
+			MODE16
+			//sprite_posy = sprite_posy+vertical_speed
+		}
+		if vertical_speed != 0x0000
+		{
+			//tmp16 = vertical_speed & 0x7FFF
+			tmp16 = vertical_speed >> 1
+			tmp16 = tmp16 | 0x8000
+			sprite_posy = sprite_posy+tmp16
+		}
+		MODE8
+	}
+	if frog_state == FALL
+	{
+		MODE16
+		if vertical_speed <10
+		{
+			vertical_speed +=1
+		}
+		tmp16 = vertical_speed >> 1
+		//tmp16 = tmp16 & 0x7FFF
+		sprite_posy = sprite_posy+tmp16
+		//sprite_posy = sprite_posy+vertical_speed
+		MODE8
+	}
+	
+	if frog_state < JUMP
+	{
+		if sprite_posx != sprite_posx_old
+		{
+			frog_state = WALK
+		}
+		if sprite_posx == sprite_posx_old
+		{
+			frog_state = IDLE
+		}
+	}
+	MODE8
+}
+
+
+func player_state_visuals: uint8 player_state
+{
+	MODE16
+	idx = SPR_INDEX_0
+	// sprite position on screen
+	[SNDK_SPRITE.x,idx] = position_x * 4
+	[SNDK_SPRITE.y,idx] = position_y * 4
+	MODE8
+	if player_state == IDLE 
+	{
+		MODE16
+		[SNDK_SPRITE.index,idx] = 0
+		MODE8
+	}
+	if player_state == WALK 
+	{
+		MODE16
+		[SNDK_SPRITE.index,idx] = 50
+		MODE8
+	}
+	if player_state == JUMP
+	{
+		MODE16
+		[SNDK_SPRITE.index,idx]  = 104
+		[SNDK_SPRITE.ianim,idx] = 0		//stop animation on jump
+		MODE8
+	}
+	if player_state == FALL
+	{
+		MODE16
+		[SNDK_SPRITE.index,idx]  = 102
+		[SNDK_SPRITE.ianim,idx] = 0		//stop animation on fall
+		MODE8
+	}
+}

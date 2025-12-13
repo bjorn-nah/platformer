@@ -1,0 +1,60 @@
+
+
+SNES_BANK 3
+MAP1_PAL:
+.incbin "DATA/map/bg_arrange03.pal"
+MAP1_SPR:
+.incbin "DATA/map/bg_arrange03.spr"
+
+MAP1_DATA:
+.incbin "DATA/map/test_02_A.ktm"
+
+MAP2_DATA:
+.incbin "DATA/map/test_02_B.ktm"
+
+MAPC_DATA:
+.incbin "DATA/map/test_02_C.ktm"
+
+
+SNES_BANK 4
+
+
+SNES_BANK 5
+
+
+
+SNES_BANK 6
+
+
+SNES_BANK 7
+
+
+SNES_BANK 8
+FROG_SPR:
+.incbin "DATA/sprite/frog_idle.spr"
+.incbin "DATA/sprite/frog_run.spr"
+.incbin "DATA/sprite/frog_alt.spr"
+
+FROG_PAL:
+.incbin "DATA/sprite/frog_idle.pal"
+
+SNES_BANK 9
+
+SNES_BANK 10
+
+
+SNES_BANK 11
+
+
+SNES_BANK 12
+
+
+SNES_BANK 13
+
+SNES_BANK 14
+
+
+SNES_BANK 15
+
+
+.org 0x80000

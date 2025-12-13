@@ -1,0 +1,24 @@
+
+proc main:
+{
+	FORCED_BLANK
+	call start_logo_sndk:
+	FORCED_BLANK
+	TM = (SNDK_BG3)
+	
+	
+	uint8 select
+	select = 0
+	
+	uint8 fade
+	fade = 0
+	
+	
+	
+	do
+	{
+		call platformer:
+	}
+	while 1 == 1
+	
+}

@@ -1,0 +1,20 @@
+# Repositories
+SNDK/
+SPC/
+tools/
+translator/
+DATA/.comments/
+
+# my saves ;)
+*_save
+
+# Executables files
+higueulc
+higueulc.exe
+*.sh
+
+# Build files
+out.asm
+*.mlb
+*.smc
+
