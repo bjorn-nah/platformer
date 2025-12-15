@@ -1,0 +1,327 @@
+// --- collisions:
+
+func coll_frog_bg: uint16 frog_x,uint16 frog_y
+{
+	MODE16
+	//acc = 0
+	frog_x = frog_x >> 4
+	frog_y = frog_y >> 4
+	frog_y = frog_y << 6 // multiply by BG lenght (x64)
+	idx = frog_x + frog_y
+	MODE8
+	acc = [SNDK_BufferBGC,idx]
+}
+
+func coll_bg_up: uint16 frog_x,uint16 frog_y
+{
+	uint8 result,result_tmp
+	uint16 max_x
+	
+	MODE16
+	frog_x += 8 // colision of frog starts at 8position_x width
+	frog_x = frog_x >> 4
+	frog_y += 8 // colision of frog starts at 8position_x hight
+	frog_y = frog_y >> 4
+	frog_y = frog_y << 6 // multiply by BG lenght (x64)
+	max_x = frog_x + 2 // colision of frog ends at 24position_x width
+	MODE8
+	result = 0
+	
+	MODE16
+	do
+	{
+		idx = frog_x + frog_y
+		MODE8
+		result_tmp = [SNDK_BufferBGC,idx]
+		if result_tmp > result
+		{
+			result = result_tmp
+		}
+		MODE16
+		frog_x += 1
+	}
+	while frog_x < max_x
+	MODE8
+	acc = result
+}
+
+func coll_bg_down: uint16 frog_x,uint16 frog_y
+{
+	uint8 result,result_tmp
+	uint16 max_x
+	
+	MODE16
+	frog_x += 8 // colision of frog starts at 8position_x width
+	frog_x = frog_x >> 4
+	frog_y += 32 // colision of frog is at 32position_x hight
+	frog_y = frog_y >> 4
+	frog_y = frog_y << 6 // multiply by BG lenght (x64)
+	max_x = frog_x + 2 // colision of frog ends at 24position_x width
+	MODE8
+	result = 0
+	
+	MODE16
+	do
+	{
+		idx = frog_x + frog_y
+		MODE8
+		result_tmp = [SNDK_BufferBGC,idx]
+		if result_tmp > result
+		{
+			result = result_tmp
+		}
+		MODE16
+		frog_x += 1
+	}
+	while frog_x < max_x
+	MODE8
+	acc = result
+}
+
+func coll_bg_left: uint16 frog_x,uint16 frog_y
+{
+	uint8 result,result_tmp
+	uint16 temp_y,max_y
+	
+	MODE16
+	frog_x += 8 // colision of frog is at 8position_x width
+	frog_x = frog_x >> 4
+	frog_y += 8 // colision of frog starts at 8position_x hight
+	max_y = frog_y + 32 // colision of frog ends at 32position_x width
+	MODE8
+	result = 0
+	
+	MODE16
+	do
+	{
+		temp_y = frog_y >> 4
+		temp_y = temp_y << 6 // multiply by BG lenght (x64)
+		idx = frog_x + temp_y
+		MODE8
+		result_tmp = [SNDK_BufferBGC,idx]
+		if result_tmp > result
+		{
+			result = result_tmp
+		}
+		MODE16
+		frog_y += 8
+	}
+	while frog_y < max_y
+	MODE8
+	acc = result
+}
+
+func coll_bg_right: uint16 frog_x,uint16 frog_y
+{
+	uint8 result,result_tmp
+	uint16 temp_y,max_y
+	
+	MODE16
+	frog_x += 24 // colision of frog is at 8position_x width
+	frog_x = frog_x >> 4
+	frog_y += 8 // colision of frog stars at 8position_x hight
+	//frog_y = frog_y >> 4
+	//frog_y = frog_y << 6 // multiply by BG lenght (x64)
+	//max_y = frog_y + 192 // colision of frog ends at 32position_x width == 3x64
+	max_y = frog_y + 32 // colision of frog ends at 32position_x width
+	MODE8
+	result = 0
+	
+	MODE16
+	do
+	{
+		temp_y = frog_y >> 4
+		temp_y = temp_y << 6 // multiply by BG lenght (x64)
+		idx = frog_x + temp_y
+		MODE8
+		result_tmp = [SNDK_BufferBGC,idx]
+		if result_tmp > result
+		{
+			result = result_tmp
+		}
+		MODE16
+		frog_y += 8
+	}
+	while frog_y < max_y
+	MODE8
+	acc = result
+}
+
+
+// --- general physics:
+
+func physics: 
+{
+	uint8 hit_up, hit_down, hit_left, hit_right
+	
+	hit_up = 0
+	hit_down = 0
+	hit_left = 0
+	hit_right = 0
+	
+	MODE16
+	tmp16 = sprite_posy +1
+	MODE8
+	call coll_bg_down:sprite_posx,tmp16
+	hit_down += acc
+	if frog_state != JUMP
+	{
+		if hit_down == 0
+		{
+			frog_state = FALL
+		}
+	}
+	
+	// collision detection
+	hit_down = 0
+	
+	call coll_bg_up:sprite_posx_old,sprite_posy
+	hit_up += acc
+	call coll_bg_down:sprite_posx_old,sprite_posy
+	hit_down += acc
+	call coll_bg_left:sprite_posx,sprite_posy_old
+	hit_left += acc
+	call coll_bg_right:sprite_posx,sprite_posy_old
+	hit_right += acc
+	
+	// lateral wall stop
+	if hit_left == 1
+	{
+		MODE16
+		sprite_posx = sprite_posx_old
+		MODE8
+	}
+	if hit_right == 1
+	{
+		MODE16
+		sprite_posx = sprite_posx_old
+		MODE8
+	}
+	// roof stop:
+	// in the collision matrix, only the value 1 stops player from the bottom
+	if hit_up == 1 
+	{
+		MODE16
+		sprite_posy = sprite_posy_old
+		MODE8
+		if frog_state == JUMP
+		{
+			MODE16
+			vertical_speed = 0x0000
+			MODE8
+			frog_state = FALL
+		}
+	}
+	// floor stop:
+	// in the collision matrix all the values bigger than 0 stops player from falling
+	if hit_down != 0
+	{
+		if frog_state == FALL
+		{
+			sprite_posy = sprite_posy_old
+			MODE16
+			vertical_speed = 0x0000
+			MODE8
+			frog_state = IDLE
+		}
+	}
+}
+
+func player_physics:
+{
+	MODE16
+	idx = SPR_INDEX_0
+	
+	sprite_speed = 0x0001
+	MODE8
+	if SNDK_Joypad.pad1h & SNDK_PAD_B
+	{
+		MODE16
+		sprite_speed = 0x0002
+		MODE8
+	}
+	if SNDK_Joypad.pad1h & SNDK_PAD_RIGHT
+	{
+		MODE16
+		if sprite_posx < 0x03E0 // 1024 -32
+		{
+			//sprite_posx += sprite_speed
+			sprite_posx = sprite_posx+sprite_speed
+		}
+		cam_x_offest = 0x0040
+		MODE8
+		//frog_direction = RIGHT
+		[SNDK_SPRITE.a,idx] = (OAM_PAL0 | OAM_PRIO2);
+	}
+	if SNDK_Joypad.pad1h & SNDK_PAD_LEFT
+	{
+		MODE16
+		if sprite_posx > 0
+		{
+			//sprite_posx -= sprite_speed
+			sprite_posx = sprite_posx-sprite_speed
+		}
+		cam_x_offest = 0x00A0
+		MODE8
+		//frog_direction = LEFT
+		[SNDK_SPRITE.a,idx] = (OAM_PAL0 | OAM_PRIO2 | OAM_XFLIP);
+	}
+
+	if SNDK_Joypad.pad1l & SNDK_PAD_A
+	{
+		if frog_state < JUMP
+		{
+			MODE16
+			vertical_speed = 0xFFF0
+			MODE8
+			frog_state = JUMP
+		}
+	}
+	
+	if frog_state == JUMP
+	{
+		MODE16
+		vertical_speed +=1
+		if vertical_speed == 0x0000
+		{
+			MODE8
+			frog_state = FALL
+			MODE16
+			//sprite_posy = sprite_posy+vertical_speed
+		}
+		if vertical_speed != 0x0000
+		{
+			//tmp16 = vertical_speed & 0x7FFF
+			tmp16 = vertical_speed >> 1
+			tmp16 = tmp16 | 0x8000
+			sprite_posy = sprite_posy+tmp16
+		}
+		MODE8
+	}
+	if frog_state == FALL
+	{
+		MODE16
+		if vertical_speed <10
+		{
+			vertical_speed +=1
+		}
+		tmp16 = vertical_speed >> 1
+		//tmp16 = tmp16 & 0x7FFF
+		sprite_posy = sprite_posy+tmp16
+		//sprite_posy = sprite_posy+vertical_speed
+		MODE8
+	}
+	
+	if frog_state < JUMP
+	{
+		if sprite_posx != sprite_posx_old
+		{
+			frog_state = WALK
+		}
+		if sprite_posx == sprite_posx_old
+		{
+			frog_state = IDLE
+		}
+	}
+	MODE8
+}

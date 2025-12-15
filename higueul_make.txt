@@ -10,7 +10,7 @@ add_file: SNDK/bss_define.egl; SNDK/header.egl; SNDK/macro.egl;
 add_file: SNDK/crt0.egl;
 
 
-add_file:variable.egl;
+add_file:variable.egl; constant.egl;
 
 #file game
 add_file:main.egl;

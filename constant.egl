@@ -1,0 +1,11 @@
+// global constants goes here:
+
+.define IDLE 0x00
+.define WALK 0x01
+.define JUMP 0x02
+.define FALL 0x03
+
+.define LEFT 0x40
+.define RIGHT 0x00
+
+.define MAX_SCREEN_SPEED 0x0004

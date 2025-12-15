@@ -1,4 +1,9 @@
+// global variables goes here:
 
-
-
-
+uint16 position_x,position_y,var2,tmp16
+uint16 screenx,screeny,posx,posy,vrticalGB2
+uint16 cam_x,cam_y,cam_x_offest
+uint16 sprite_posx,sprite_posy,sprite_posx_old,sprite_posy_old
+uint16 sprite_speed, vertical_speed
+uint16 screenx_speed,screeny_speed
+uint8 frog_state
