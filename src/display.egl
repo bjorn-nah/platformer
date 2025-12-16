@@ -1,0 +1,151 @@
+func player_state_visuals: uint8 player_state
+{
+	MODE16
+	idx = SPR_INDEX_0
+	// sprite position on screen
+	[SNDK_SPRITE.x,idx] = position_x * 4
+	[SNDK_SPRITE.y,idx] = position_y * 4
+	MODE8
+	if player_state == IDLE 
+	{
+		MODE16
+		[SNDK_SPRITE.index,idx] = 0
+		MODE8
+	}
+	if player_state == WALK 
+	{
+		MODE16
+		[SNDK_SPRITE.index,idx] = 50
+		MODE8
+	}
+	if player_state == JUMP
+	{
+		MODE16
+		[SNDK_SPRITE.index,idx]  = 104
+		[SNDK_SPRITE.ianim,idx] = 0		//stop animation on jump
+		MODE8
+	}
+	if player_state == FALL
+	{
+		MODE16
+		[SNDK_SPRITE.index,idx]  = 102
+		[SNDK_SPRITE.ianim,idx] = 0		//stop animation on fall
+		MODE8
+	}
+}
+
+
+// camera stuff:
+func camera:
+{
+		MODE16
+		screenx = SNDK_BG1_Scroll.x
+		screeny = SNDK_BG1_Scroll.y
+		
+		//cam_x = sprite_posx - 0x0070
+		cam_x = sprite_posx - cam_x_offest
+		position_x = sprite_posx - screenx
+		//if sprite_posx < 0x0070 //128 -16
+		if sprite_posx < cam_x_offest
+		{
+			cam_x = 0x0000
+			//position_x = sprite_posx
+		}
+		//if sprite_posx > 0x0370 //1024 - 128 -16
+		tmp16 = cam_x_offest + 1024
+		if sprite_posx > tmp16
+		{
+			// 0x0300 = 1024 -256
+			cam_x = 0x0300
+			//position_x = sprite_posx - 0x0300
+		}
+		cam_y = sprite_posy - 0x0060
+		position_y = sprite_posy - screeny
+		if sprite_posy < 0x0060 //112 -16
+		{
+			cam_y = 0x0000
+			//position_y = sprite_posy
+		}
+		if sprite_posy > 0x0180 //512 - 112 -16
+		{
+			// 0x0300 = 1024 -256
+			cam_y = 0x0120
+			//position_y = sprite_posy - 0x0120
+		}
+		
+		
+		if cam_x > screenx
+		{
+			tmp16 = cam_x - screenx
+			if tmp16 < screenx_speed
+			{
+				screenx_speed = tmp16
+			}
+			SNDK_BG2_Scroll.x += screenx_speed;
+			SNDK_BG1_Scroll.x += screenx_speed;
+			SNDK_BG_Scroll.addx = SNDK_BG_SCROLL_RIGHT
+			screenx_speed += 0x0001
+		}
+		
+		if cam_x < screenx
+		{
+			tmp16 = screenx - cam_x
+			if tmp16 < screenx_speed
+			{
+				screenx_speed = tmp16
+			}
+			SNDK_BG2_Scroll.x -= screenx_speed;
+			SNDK_BG1_Scroll.x -= screenx_speed;
+			SNDK_BG_Scroll.addx = SNDK_BG_SCROLL_LEFT
+			screenx_speed += 0x0001
+		}
+		
+		
+		if cam_y < screeny
+		{
+			tmp16 = screeny - cam_y
+			if tmp16 < screeny_speed
+			{
+				screeny_speed = tmp16
+			}
+			//SNDK_BG2_Scroll.y -= screeny_speed;
+			SNDK_BG1_Scroll.y -= screeny_speed;
+			SNDK_BG_Scroll.addy = SNDK_BG_SCROLL_UP
+			screeny_speed += 0x0001
+		}
+		
+		if cam_y > screeny
+		{
+			tmp16 = cam_y - screeny
+			if tmp16 < screeny_speed
+			{
+				screeny_speed = tmp16
+			}
+			//SNDK_BG2_Scroll.y += screeny_speed;
+			SNDK_BG1_Scroll.y += screeny_speed;
+			SNDK_BG_Scroll.addy = SNDK_BG_SCROLL_DOWN
+			screeny_speed += 0x0001
+		}
+		
+		SNDK_BG2_Scroll.y = SNDK_BG1_Scroll.y - vrticalGB2
+		
+		if screenx_speed > MAX_SCREEN_SPEED
+		{
+			screenx_speed = MAX_SCREEN_SPEED
+		}
+		if screeny_speed > MAX_SCREEN_SPEED
+		{
+			screeny_speed = MAX_SCREEN_SPEED
+		}
+		
+		if cam_x == screenx
+		{
+			screenx_speed = 0x0001
+		}
+		if cam_y == screeny
+		{
+			screeny_speed = 0x0001
+		}
+		
+		MODE8
+}

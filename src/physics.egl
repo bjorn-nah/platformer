@@ -229,42 +229,90 @@ func physics:
 
 func player_physics:
 {
+	uint8 tmp8, frog_direction
+	uint16 tmp_speed, max_speed
+	
 	MODE16
 	idx = SPR_INDEX_0
 	
-	sprite_speed = 0x0001
+	//sprite_speed = 0x0001
+
+	
 	MODE8
 	if SNDK_Joypad.pad1h & SNDK_PAD_B
 	{
 		MODE16
-		sprite_speed = 0x0002
+		max_speed = MAX_FROG_RUN
+		MODE8
+	} else{
+		MODE16
+		max_speed = MAX_FROG_WALK
 		MODE8
 	}
 	if SNDK_Joypad.pad1h & SNDK_PAD_RIGHT
 	{
 		MODE16
-		if sprite_posx < 0x03E0 // 1024 -32
-		{
-			//sprite_posx += sprite_speed
-			sprite_posx = sprite_posx+sprite_speed
-		}
+		//if sprite_posx < 0x03E0 // 1024 -32
+		//{
+		//	//sprite_posx += sprite_speed
+		//	sprite_posx = sprite_posx+sprite_speed
+		//}
 		cam_x_offest = 0x0040
 		MODE8
-		//frog_direction = RIGHT
+		frog_direction = RIGHT
 		[SNDK_SPRITE.a,idx] = (OAM_PAL0 | OAM_PRIO2);
 	}
 	if SNDK_Joypad.pad1h & SNDK_PAD_LEFT
 	{
 		MODE16
-		if sprite_posx > 0
-		{
-			//sprite_posx -= sprite_speed
-			sprite_posx = sprite_posx-sprite_speed
-		}
+		//if sprite_posx > 0
+		//{
+		//	//sprite_posx -= sprite_speed
+		//	sprite_posx = sprite_posx-sprite_speed
+		//}
 		cam_x_offest = 0x00A0
 		MODE8
-		//frog_direction = LEFT
+		frog_direction = LEFT
 		[SNDK_SPRITE.a,idx] = (OAM_PAL0 | OAM_PRIO2 | OAM_XFLIP);
+	}
+	tmp8 = SNDK_Joypad.pad1h & 0x03
+	if tmp8 == 0x00
+	{
+		MODE16
+		if sprite_speed != 0x0000
+		{
+			sprite_speed = sprite_speed - 0x0001
+		}
+		//sprite_speed = 0x0000
+		MODE8
+	}else{
+		if sprite_speed < max_speed
+		{
+			sprite_speed = sprite_speed + 0x0001
+		}
+	}
+	
+	if frog_direction == RIGHT
+	{
+		MODE16
+		if sprite_posx < 0x03E0 // 1024 -32
+		{
+			tmp_speed = sprite_speed >> 0x0002
+			sprite_posx = sprite_posx+tmp_speed
+			//sprite_posx = sprite_posx+sprite_speed
+		}
+		MODE8
+	} 
+	else
+	{
+		MODE16
+		if sprite_posx > 0
+		{
+			tmp_speed = sprite_speed >> 0x0002
+			sprite_posx = sprite_posx-tmp_speed
+			//sprite_posx = sprite_posx-sprite_speed
+		}
+		MODE8
 	}
 
 	if SNDK_Joypad.pad1l & SNDK_PAD_A
