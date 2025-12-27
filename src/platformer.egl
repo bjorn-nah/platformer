@@ -19,6 +19,18 @@ func platformer:
 	//Load BG
 	call SNDK_LoadBG:0,0,0
 	
+	//load DIR SFX
+	call SNDK_SPC_Set2: SNDK_SPC_ADDR,0x700
+	call SNDK_SPC_SetData: $SFX_DIR:,#SFX_DIR:,0x100
+	
+	//load BRR SFX
+	call SNDK_SPC_Set2: SNDK_SPC_ADDR,0x8000
+	call SNDK_SPC_SetData: $SFX_BRR:,#SFX_BRR:,0x5000
+	
+	//Volume global  ,volume SFX
+	call SNDK_SPC_Set: SNDK_SPC_VOLUME,0x7F,0x7F
+	call SNDK_SPC_Set: SNDK_SPC_BRR_VOLUME,0x7F,0x7F
+	
 	
 	//--------SPR0----
 	MODE16
@@ -160,6 +172,10 @@ func platformer:
 				return
 			}
 		}
+		
+		//Send SFX , delay
+		call SNDK_SFX_Engine: 12
+		
 		call SNDK_WaitVBlank:
 		
 

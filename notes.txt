@@ -1,0 +1,7 @@
+retroconvert -sfc -4bpp -lz -map1 -bundle tile.png
+
+Samples:
+- pitch an speed x2
+- export at 8000Mhz 16 bits mono
+- rename as Sample(number).wav
+retrotracker.exe -sfx Sample0.wav Sample1.wav

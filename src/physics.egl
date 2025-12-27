@@ -326,6 +326,7 @@ func player_physics:
 				MODE8
 				frog_state = JUMP
 				release_jump = 0x00
+				SNDK_SFX1 = 0 // sound 0
 			}
 		}
 	}

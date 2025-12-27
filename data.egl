@@ -27,7 +27,11 @@ SNES_BANK 6
 
 
 SNES_BANK 7
+SFX_BRR:
+.incbin "DATA/sound/SFX.brr"
 
+SFX_DIR:
+.incbin "DATA/sound/SFX.dir"
 
 SNES_BANK 8
 FROG_SPR:
