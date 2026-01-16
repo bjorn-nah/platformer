@@ -153,11 +153,6 @@ func platformer:
 		//call SNDK_PrintHexa8: var3,16,4,SNDK_FONTPAL0
 		//call SNDK_PrintHexa16: tmp16,22,4,SNDK_FONTPAL0
 		
-		//call SNDK_PrintHexa8: hit_up,12,8,SNDK_FONTPAL0
-		//call SNDK_PrintHexa8: hit_down,12,10,SNDK_FONTPAL0
-		//call SNDK_PrintHexa8: hit_left,10,9,SNDK_FONTPAL0
-		//call SNDK_PrintHexa8: hit_right,14,9,SNDK_FONTPAL0
-		
 		call SNDK_PrintHexa8: SNDK.cpu,4,22,SNDK_FONTPAL0
 		
 		call: SNDK_Pause: 0xFF,0xFF
