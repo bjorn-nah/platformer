@@ -42,6 +42,14 @@ FROG_SPR:
 FROG_PAL:
 .incbin "DATA/sprite/frog_idle.pal"
 
+MASK_SPR:
+.incbin "DATA/sprite/mask_idle.spr"
+.incbin "DATA/sprite/mask_run.spr"
+.incbin "DATA/sprite/mask_alt.spr"
+
+MASK_PAL:
+.incbin "DATA/sprite/mask_idle.pal"
+
 SNES_BANK 9
 
 SNES_BANK 10
