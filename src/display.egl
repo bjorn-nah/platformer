@@ -149,3 +149,61 @@ func camera:
 		
 		MODE8
 }
+
+
+func sprite_init: uint16 number_sprite
+{
+	spm uint16 pfunc
+	
+	pfunc =+ $SNDK_SpriteEngineDrawMode0z:
+	MODE16
+	idy = number_sprite
+	idx = SPR_INDEX_0
+
+	do
+	{
+		[SNDK_SPRITE.mode,idx] = pfunc
+		acc = 0x00
+		
+		[SNDK_SPRITE.index,idx] = acc
+		[SNDK_SPRITE.x,idx] = acc
+		[SNDK_SPRITE.y,idx] = acc
+		[SNDK_SPRITE.add,idx] = acc
+		[SNDK_SPRITE.ianim,idx] = acc
+		[SNDK_SPRITE.visible,idx] = acc
+		MODE8
+		
+		[SNDK_SPRITE.oam,idx] = acc
+		[SNDK_SPRITE.flag,idx] = acc
+		[SNDK_SPRITE.eanim,idx] = acc
+		[SNDK_SPRITE.draw,idx] = acc
+		
+		[SNDK_SPRITE.t,idx] = acc
+		[SNDK_SPRITE.a,idx] = acc
+		MODE16
+		
+		idx += 0x20
+	}
+	loop idy == 0
+	MODE8
+} 
+
+func enemy_display:
+{
+	MODE16
+	
+	idy = ENEMY_MAX;
+	idx = 0;
+	do
+	{
+		if [ENEMY.type,idx] > 0x00
+		{
+			//PROUT
+		}
+		idx += 0x10
+	}
+	loop idy == 0
+
+	
+	MODE8
+}

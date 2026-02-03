@@ -10,11 +10,12 @@ func platformer:
 	//SNDK_SendVRAM 0x0000,MAP1_SPR,0x8000
 	call SNDK_LZ_VRAM: 3
 	//SNDK_SendVRAM 0x6000,FROG_SPR,0x1000
-	SNDK_SendVRAM 0x6000,FROG_SPR,0x1800
+	//SNDK_SendVRAM 0x6000,FROG_SPR,0x1800
 	
 	//update pal
 	SNDK_memcopy SNDK_PALBG1,MAP1_PAL,0xE0
 	SNDK_memcopy SNDK_PALSPR0,FROG_PAL,0x40
+	SNDK_memcopy SNDK_PALSPR1,MASK_PAL,0x40
 	
 	//Load BG
 	call SNDK_LoadBG:0,0,0
@@ -33,13 +34,17 @@ func platformer:
 	
 	
 	//--------SPR0----
+	
+	call sprite_init: 2
+	
 	MODE16
+	sprite_number = 1 // init sprite_number
 	idx = SPR_INDEX_0
 	
 	[SNDK_SPRITE.list,idx] = $LIST_FROG:
 	[SNDK_SPRITE.x,idx] = (100<<2)
 	[SNDK_SPRITE.y,idx] = (100<<2)
-	[SNDK_SPRITE.mode,idx] = $SNDK_SpriteEngineDrawMode0:
+	//[SNDK_SPRITE.mode,idx] = $SNDK_SpriteEngineDrawMode0: 
 	[SNDK_SPRITE.index,idx]  = 0
 	[SNDK_SPRITE.ianim,idx]  = 0
 	MODE8
@@ -47,6 +52,8 @@ func platformer:
 	[SNDK_SPRITE.flag,idx] = 0x02
 	[SNDK_SPRITE.t,idx] = 0;
 	[SNDK_SPRITE.a,idx] = (OAM_PAL0 | OAM_PRIO2);
+	
+	
 	
 	
 	spm uint8 fade,var1,select_stop,var3,hit,tmp8
@@ -74,6 +81,10 @@ func platformer:
 	screeny_speed = 0x0001
 	vrticalGB2=0x0000
 	MODE8
+	
+	//test enemy
+	call Enemy_Init:4
+	call Enemy_Add:
 	
 	TM = (SNDK_OBJ | SNDK_BG1 | SNDK_BG2 | SNDK_BG3)
 	
@@ -123,7 +134,11 @@ func platformer:
 		
 		// sprites part
 		call SNDK_Sprite:
-		call SNDK_SpriteEngine:0,1,1
+		call SNDK_SpriteEngine:0,sprite_number,1
+		//call SNDK_SpriteEngine:0,sprite_number,2
+		
+		//test enemy
+		//call Enemy_Init:4
 		
 		
 		// Debug zone!

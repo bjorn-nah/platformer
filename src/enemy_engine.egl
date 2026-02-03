@@ -1,0 +1,83 @@
+func Enemy_Init:uint16 n
+{
+	MODE16
+	
+	idy = n;
+	idx = 0;
+	do
+	{	
+		acc = 0x00
+		
+		[ENEMY.x,idx] = acc;
+		[ENEMY.y,idx] = acc;
+		[ENEMY.vx,idx] = acc;
+		[ENEMY.vy,idx] = acc;
+		[ENEMY.type,idx] = acc;
+		[ENEMY.status,idx] = acc;
+		[ENEMY.visible,idx] = acc;
+		[ENEMY.dummy02,idx] = acc;
+		[ENEMY.dummy03,idx] = acc;
+		[ENEMY.dummy04,idx] = acc;
+		
+		idx += 0x10
+	}
+	loop idy == 0
+
+	
+	MODE8
+}
+
+//func Enemy_Add:uint8 type
+//{
+//	MODE16
+//	idx = 0;
+//	do
+//	{	
+//		idx += 0x10
+//	}
+//	while [ENEMY.type,idx]!=0x00
+//	if idx < 0x0200
+//	{
+//		ENEMY.type = type
+//	}
+//
+//	
+//	MODE8
+//}
+
+func Enemy_Add:
+{
+	MODE16
+	idx = 0;
+	do
+	{	
+		idx += 0x10
+	}
+	while [ENEMY.type,idx]!=0x00
+	if idx < 0x0200
+	{
+		MODE8
+		ENEMY.type = 0x01
+		
+		MODE16
+		//idx = idx * 2
+		//idx = SPR_INDEX_0 + idx
+		idx = SPR_INDEX_1
+		[SNDK_SPRITE.list,idx] = $LIST_MASK:
+		[SNDK_SPRITE.x,idx] = 0x0100
+		[SNDK_SPRITE.y,idx] = 0x0100
+		//[SNDK_SPRITE.mode,idx] = $SNDK_SpriteEngineDrawMode0: 
+		[SNDK_SPRITE.index,idx]  = 0x00
+		[SNDK_SPRITE.ianim,idx]  = 0x00
+		MODE8
+		
+		[SNDK_SPRITE.flag,idx] = 0x00
+		[SNDK_SPRITE.t,idx] = 0x04;		// first tile to get in the vram
+		[SNDK_SPRITE.a,idx] = (OAM_PAL1 | OAM_PRIO2);
+		MODE16
+		sprite_number +=1
+	}
+
+	
+	MODE8
+}

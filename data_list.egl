@@ -36,20 +36,25 @@ SNDK_LOAD:
 
 //list
 SNDK_LIST:
-LIST_SPR1:
-// label   data              anim
-.data.l   HERO_SPR:,HERO_ANIM:
-.data.w 0x6000,0x80,0x200,0x0F
-//------VRAM  ,size,shift,channel
-
-LIST_SPR2:
-.data.l   HERO_SPR:,HERO_ANIM:
-.data.w 0x6040, 0x80,0x200,0x0F
-//------------------------
+//LIST_SPR1:
+//// label   data              anim
+//.data.l   HERO_SPR:,HERO_ANIM:
+//.data.w 0x6000,0x80,0x200,0x0F
+////------VRAM  ,size,shift,channel
+//
+//LIST_SPR2:
+//.data.l   HERO_SPR:,HERO_ANIM:
+//.data.w 0x6040, 0x80,0x200,0x0F
+////------------------------
 
 LIST_FROG:
 .data.l   FROG_SPR:,FROG_ANIM:
-.data.w 0x6000, 0x100,0x200,         0x0F
+.data.w 0x6000, 0x80,0x200,         0x0F
+//------------------------
+
+LIST_MASK:
+.data.l   MASK_SPR:,FROG_ANIM:
+.data.w 0x6040, 0x80,0x200,         0x0F
 //------------------------
 
 HERO_ANIM:

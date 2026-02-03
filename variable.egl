@@ -7,3 +7,4 @@ uint16 sprite_posx,sprite_posy,sprite_posx_old,sprite_posy_old
 uint16 sprite_speed, vertical_speed
 uint16 screenx_speed,screeny_speed
 uint8 frog_state
+uint16 sprite_number

@@ -13,5 +13,7 @@
 .define MAX_FROG_RUN 0x0010
 .define MAX_FROG_FALL 0x0010
 
+.define ENEMY_MAX 0x20
+
 //.define MAX_FROG_WALK 0x0002
 //.define MAX_FROG_RUN 0x0004
