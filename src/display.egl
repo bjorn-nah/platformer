@@ -151,13 +151,13 @@ func camera:
 }
 
 
-func sprite_init: uint16 number_sprite
+func sprite_init: uint16 total_sprites
 {
 	spm uint16 pfunc
 	
 	pfunc =+ $SNDK_SpriteEngineDrawMode0z:
 	MODE16
-	idy = number_sprite
+	idy = total_sprites
 	idx = SPR_INDEX_0
 
 	do

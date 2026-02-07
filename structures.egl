@@ -1,0 +1,16 @@
+//-- test perso
+// on est un peu après 0x7EEFC0
+.bss 0x7EFA00
+uint16 ENEMY.x;
+uint16 ENEMY.y;
+uint16 ENEMY.vx;
+uint16 ENEMY.vy;
+
+uint8 ENEMY.type;
+uint8 ENEMY.status;
+uint8 ENEMY.visible;
+uint16 ENEMY.dummy02;
+uint16 ENEMY.dummy03;
+uint8 ENEMY.dummy04;
+
+uint8 ENEMY (0x200);

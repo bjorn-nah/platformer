@@ -12,6 +12,7 @@ DATA/.comments/
 higueulc
 higueulc.exe
 *.sh
+*.bat
 
 # Build files
 out.asm

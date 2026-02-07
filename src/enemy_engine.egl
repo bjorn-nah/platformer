@@ -47,37 +47,75 @@ func Enemy_Init:uint16 n
 
 func Enemy_Add:
 {
+	//uint16 test_output
+	spm uint16 tmp_calc, test_sprite
+	spm uint8 tmp_offset
+	spm uint8 tmp_exit
 	MODE16
 	idx = 0;
+	//idy = 2;
+	tmp_exit = 0x00
 	do
 	{	
-		idx += 0x10
+		if [ENEMY.type,idx]==0x00
+		{
+			tmp_exit = 0x01
+		}
+		else
+		{
+			idx += 0x10
+		}
 	}
-	while [ENEMY.type,idx]!=0x00
+	while tmp_exit == 0x00
+	//idx -= 0x10		// because in while structure the code in the loop was evaluated before the exit condition
 	if idx < 0x0200
 	{
+	//do
+	//{
+	
+		//test_output = 0x1234
+		//[ENEMY.x,idx] = 0x1234
 		MODE8
-		ENEMY.type = 0x01
+		[ENEMY.type,idx] = 0x01
+		tmp_offset = idx >> 2			// divide by 4
+		tmp_offset = 0x04 + tmp_offset	// and add vram position of sprite 1
+		[ENEMY.x,idx] = tmp_offset
 		
 		MODE16
 		//idx = idx * 2
 		//idx = SPR_INDEX_0 + idx
-		idx = SPR_INDEX_1
-		[SNDK_SPRITE.list,idx] = $LIST_MASK:
-		[SNDK_SPRITE.x,idx] = 0x0100
-		[SNDK_SPRITE.y,idx] = 0x0100
+		tmp_calc = idx
+		//test_sprite = idx
+		test_sprite = idx << 3
+		[ENEMY.x,idx] = tmp_calc 
+		MODE8
+		idx = idx << 1					// multiply by 2
+		idx = SPR_INDEX_1 + idx	// and add index of sprite 1
+		MODE16
+
+
+		//idx = SPR_INDEX_1 
+		//[SNDK_SPRITE.list,idx] = $LIST_MASK:
+		[SNDK_SPRITE.list,idx] = $LIST_MASK: + tmp_calc
+		//[SNDK_SPRITE.list,idx] = $SNDK_LIST: + 0x10
+		//[SNDK_SPRITE.x,idx] = 0x0020 + tmp_calc
+		[SNDK_SPRITE.x,idx] = test_sprite
+		[SNDK_SPRITE.y,idx] = 0x0080
 		//[SNDK_SPRITE.mode,idx] = $SNDK_SpriteEngineDrawMode0: 
-		[SNDK_SPRITE.index,idx]  = 0x00
-		[SNDK_SPRITE.ianim,idx]  = 0x00
+		//[SNDK_SPRITE.index,idx]  = 0x00
+		//[SNDK_SPRITE.ianim,idx]  = 0x00
 		MODE8
 		
 		[SNDK_SPRITE.flag,idx] = 0x00
-		[SNDK_SPRITE.t,idx] = 0x04;		// first tile to get in the vram
+		//[SNDK_SPRITE.t,idx] = 0x04;		// first tile to get in the vram
+		[SNDK_SPRITE.t,idx] = tmp_offset
 		[SNDK_SPRITE.a,idx] = (OAM_PAL1 | OAM_PRIO2);
 		MODE16
 		sprite_number +=1
+		//idx = tmp_calc
+		//idx += 0x10
 	}
-
+	//loop idy == 0
 	
 	MODE8
 }
